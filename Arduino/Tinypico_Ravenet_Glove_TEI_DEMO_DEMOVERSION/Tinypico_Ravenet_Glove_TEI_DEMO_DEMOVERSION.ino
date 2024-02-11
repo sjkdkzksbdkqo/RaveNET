@@ -3,22 +3,26 @@
 
 MAX30105 particleSensor;
 
-// This code is intended for outputin the z_axis an 8 bit value // 
-
 int GSR;
 int Heart;
 int x_axis;
 int y_axis;
 int z_axis;
 int DAC_Out_1;
+bool sw1;
+bool sw2;
+bool sw3;
+
+// Order of Serial Plotting is : X value - Y value - Z value - Heart Sensor(MAXREF117)- GSR - DAC Output value (8Bit signal in 3.3V that we amplify to a -10V/10V Signal) //
+// Only libs needed are esp32 by espressif & MAX30xxx by sparkfun
 
 void setup() {
 
   Serial.begin(115200);   // baud rate 
   Serial.println("Initializing...");  // init process for the i2C
 
-  // Initialize sensor
-  /*
+  //Initialize sensor
+  
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
   {
     Serial.println("MAX30105 was not found. Please check wiring/power. ");
@@ -35,7 +39,7 @@ void setup() {
 
   particleSensor.setup(ledBrightness, sampleAverage, ledMode, sampleRate, pulseWidth, adcRange); //Configure sensor with these settings
 
-  //Take an average of IR readings at power up
+  // Take an average of IR readings at power up
   const byte avgAmount = 64;
   long baseValue = 0;
   for (byte x = 0 ; x < avgAmount ; x++)
@@ -44,22 +48,29 @@ void setup() {
   }
   baseValue /= avgAmount;
 
-  //Pre-populate the plotter so that the Y scale is close to IR values
-  for (int x = 0 ; x < 500 ; x++)
+  // Pre-populate the plotter so that the Y scale is close to IR values
+  for (int x = 0 ; x < 500 ; x++){
     Serial.println(baseValue);
-  */
+  }
+  // Init digital pin read mode for the switches
+  pinMode(23,INPUT_PULLDOWN);
+  pinMode(19,INPUT_PULLDOWN);
+  pinMode(18,INPUT_PULLDOWN);
 }
 
 
 void loop() {
-  
+
   // --- Getting the reading of the sensors --- //
-  //int Heart = (particleSensor.getIR());  
-  //int EMG = analogRead(24);
-  //int GSR = analogRead(27);
+  int Heart = (particleSensor.getIR());  
+  int EMG = analogRead(24);
+  int GSR = analogRead(27);
   int x_axis = analogRead(15);
   int y_axis = analogRead(14);
-  int z_axis = analogRead(4); 
+  int z_axis = analogRead(4);
+  bool sw1 = digitalRead(23);
+  bool sw2 = digitalRead(19);
+  bool sw3 = digitalRead(18);
 
   // --- normalizing signal to an 8-bit value --- //
   unsigned long y_axis_min = 1900; // arbitrary values - to adjust before performance
@@ -67,30 +78,22 @@ void loop() {
   y_axis = constrain(y_axis, y_axis_min, y_axis_max);
   int DAC_Out_1 = map(y_axis, y_axis_min, y_axis_max, 0, 255);
 
-  // --- Sending data to plotters --- //
+  // --- Sending data to plotters --- //  #todo more elegant prog pls
   Serial.print(x_axis);
   Serial.print(",");
   Serial.print(y_axis);
   Serial.print(",");
   Serial.print(z_axis);
   Serial.print(",");
-  Serial.print(DAC_Out_1); // z data to plotter
-  //Serial.print(Heart); //Send raw data of heartbeat senslor to plotter
+  Serial.print(Heart);
+  Serial.print(",");
+  Serial.print(GSR);
   //Serial.print(",");
-  //Serial.print(GSR); // GSR data to plotter
-  //Serial.print(","); 
-  //Serial.print(x_axis); // x data to plotter
-  //Serial.print(","); 
-  //Serial.print(y_axis); // y data to plotter
-  //Serial.print(","); 
-  //Serial.print(z_axis); // z data to plotter
-  //Serial.print(",");
-  //Serial.print(0);
-  //Serial.print(",");
+  //Serial.print(DAC_Out_1);
   Serial.println();
-
+  // 8 bit DAC Out 
   dacWrite(26,DAC_Out_1);
   dacWrite(25,DAC_Out_1);
-
-  delay(0);
+  // delay for readability
+  delay(10);
 }

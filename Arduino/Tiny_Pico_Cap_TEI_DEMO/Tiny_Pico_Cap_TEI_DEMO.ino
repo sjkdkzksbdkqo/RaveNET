@@ -22,7 +22,7 @@ int DAC_Out_2;
 void setup() {
   Serial.begin(115200);   // baud rate 
 
-  debugMode = 0;          // Setting up the debugMode (to stream data via serial)
+  debugMode = 1;          // Setting up the debugMode (to stream data via serial)
 }
 
 
@@ -32,9 +32,9 @@ void loop() {
 
   // Getting the reading of the sesnors
   int EMG = analogRead(4);
-  int x_axis = analogRead(14);
-  int y_axis = analogRead(15);
-  int z_axis = analogRead(27);
+  //int x_axis = analogRead(14);
+  //int y_axis = analogRead(15);
+  //int z_axis = analogRead(27);
   //*/
 
 // Normalizing sensor value to an 8 bit range for DAC Output
@@ -44,13 +44,13 @@ void loop() {
   unsigned long DAC_Value_1 = EMG;  // L
   DAC_Value_1 = constrain(DAC_Value_1, DAC_Out_1_min, DAC_Out_1_max);
   DAC_Out_1 = map(DAC_Value_1, DAC_Out_1_min, DAC_Out_1_max, 0, 255);
-
+  /*
   unsigned long DAC_Out_2_min = 360;
   unsigned long DAC_Out_2_max = 700;
   unsigned long DAC_Value_2 = x_axis;  // L
   DAC_Value_2 = constrain(DAC_Value_2, DAC_Out_2_min, DAC_Out_2_max);
   DAC_Out_2 = map(DAC_Value_2, DAC_Out_2_min, DAC_Out_2_max, 0, 255);
-
+  */
   // --- DAC output (8bit) --- //
   dacWrite(25,DAC_Out_1);
   dacWrite(26,DAC_Out_1);
@@ -72,7 +72,7 @@ void loop() {
 
   // delay
   if (debugMode == 1){
-    delay(50); // delay for visibility in the plotter 
+    delay(20); // delay for visibility in the plotter 
   }
   else{
     delay(2); // smol delay to prevent data overide

@@ -32,7 +32,7 @@ void setup() {
 }
 
 // ### Tell aplication how many chanels will be smapled in main loop
-#define CHAN_COUNT 1
+#define CHAN_COUNT 3
 // capa[0] = R
 // capa[1] = L
 // capa[2] = F
@@ -55,10 +55,9 @@ void loop() {
   //Serial.println(capa[0]);
   
         //
-unsigned long Sensor_Right = capa[0];    // R
-unsigned long Sensor_Left = capa[1];    // L
-unsigned long Sensor_Front = capa[2];    // F
-
+unsigned long Sensor_Right = capa[0];// R
+unsigned long Sensor_Left = capa[1];// L
+unsigned long Sensor_Front = capa[2];// F
 
 // Normalizing DAC output value from xxx to a 8 bit range
 
